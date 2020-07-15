@@ -37,10 +37,8 @@ Unreduced features: 10252
 
 
 
-50% feature reduction = 5126
-25% feature reduction = 2563
-10% feature reduction = 1026
-5% feature reduction = 513
+| 50% feature reduction = 5126 25% feature reduction = 2563 10% feature reduction = 1026 5% feature reduction = 513 |
+|-------------------------------------------------------------------------------------------------------------------|
 
 
 
