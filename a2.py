@@ -5,6 +5,60 @@ from sklearn.base import is_classifier
 import numpy as np
 random.seed(42)
 
+#my imports
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+import sklearn.metrics as metrics
+from sklearn.tree import DecisionTreeClassifier
+#from sklearn.svm import SVC
+#from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+
+
+
+#HELPER FUNCTIONS
+
+#tokenizing
+def get_words(text):
+    words = []
+    dict_counter = {}
+    words_lower = text.lower() 
+    words_split = words_lower.split(' ')
+    for word in words_split:
+        if word.isalpha():
+            words.append(word)
+            #print(words)
+        
+    return words
+            
+
+#counting words + deleting words occurring less than x times    
+def word_counter(samples):
+    final_list = []
+    for item in samples: #samples = list of strings // item = single string
+        word_count = {}
+        words = get_words(item)
+        for word in words:
+            if word not in word_count:
+                word_count[word] = 1
+            else:
+                word_count[word] += 1
+        del_words = []
+        for word, count in word_count.items(): #Iterate the word_count dict
+            if (count < 3): # If the word occurs less than x times
+                del_words.append(word) # Add it to a list to be deleted. We cannot delete it here because of how the it
+
+        for word in del_words:
+            del word_count[word]
+
+        final_list.append(word_count)
+    #print(f'final list: {final_list}')
+    return final_list
+
+#END OF HELPER FUNCTIONS
+            
 
 ###### PART 1
 #DONT CHANGE THIS FUNCTION
@@ -18,9 +72,11 @@ def part1(samples):
 
 
 def extract_features(samples):
-    print("Extracting features ...")
-    pass #Fill this in
-
+    counter = word_counter(samples) 
+    feature_vector = DictVectorizer()
+    ndarray = feature_vector.fit_transform(counter).toarray()
+    #print(ndarray)
+    return ndarray
 
 
 ##### PART 2
@@ -37,8 +93,15 @@ def part2(X, n_dim):
 
 
 def reduce_dim(X,n=10):
-    #fill this in
-    pass
+    pca = PCA(n_components=n)
+    dim_red = pca.fit_transform(X)
+    #print(dim_red)
+    return dim_red
+
+    #svd = TruncatedSVD(n_components=n)
+    #dim_red = svd.fit_transform(X)
+    #print(dim_red)
+    #return dim_red
 
 
 
@@ -46,15 +109,16 @@ def reduce_dim(X,n=10):
 #DONT CHANGE THIS FUNCTION EXCEPT WHERE INSTRUCTED
 def get_classifier(clf_id):
     if clf_id == 1:
-        clf = "" # <--- REPLACE THIS WITH A SKLEARN MODEL
+        clf = DecisionTreeClassifier() # <--- REPLACE THIS WITH A SKLEARN MODEL
     elif clf_id == 2:
-        clf = "" # <--- REPLACE THIS WITH A SKLEARN MODEL
+        clf = GaussianNB() # <--- REPLACE THIS WITH A SKLEARN MODEL
     else:
         raise KeyError("No clf with id {}".format(clf_id))
 
     assert is_classifier(clf)
     print("Getting clf {} ...".format(clf.__class__.__name__))
     return clf
+
 
 #DONT CHANGE THIS FUNCTION
 def part3(X, y, clf_id):
@@ -83,18 +147,27 @@ def part3(X, y, clf_id):
     evalute_classifier(clf, X_test, y_test)
 
 
+#returning 80/20 train test split in four lists
 def shuffle_split(X,y):
-    pass # Fill in this
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20)
+    return X_train, X_test, y_train, y_test
 
 
+#training the classifier on the training data
 def train_classifer(clf, X, y):
     assert is_classifier(clf)
-    ## fill in this
+    model = clf.fit(X,y)
 
 
+# getting accuracy, precision, recall, and F-measure of trained classifier  
 def evalute_classifier(clf, X, y):
     assert is_classifier(clf)
-    #Fill this in
+    clf_prediction = clf.predict(X)
+    accuracy = metrics.accuracy_score(clf_prediction, y)
+    print('Accuracy:', accuracy)
+    print()
+    print(metrics.classification_report(clf_prediction, y))
+
 
 
 ######
